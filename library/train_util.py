@@ -2717,10 +2717,8 @@ def is_disk_cached_latents_is_expected(reso, npz_path: str, flip_aug: bool, alph
 
 
 def debug_dataset(train_dataset, show_input_ids=False):
-    logger.info(f"Total dataset length (steps) / データセットの長さ（ステップ数）: {len(train_dataset)}")
-    logger.info(
-        "`S` for next step, `E` for next epoch no. , Escape for exit. / Sキーで次のステップ、Eキーで次のエポック、Escキーで中断、終了します"
-    )
+    logger.info(f"Total dataset length (steps): {len(train_dataset)}")
+    logger.info("`S` for next step, `E` for next epoch no. , Escape for exit.")
 
     epoch = 1
     while True:
@@ -5467,6 +5465,7 @@ def load_target_model(args, weight_dtype, accelerator, unet_use_linear_projectio
                 vae.to(accelerator.device)
 
             clean_memory_on_device(accelerator.device)
+        logger.info(f"process {pi} waiting for all other processes to load the model")
         accelerator.wait_for_everyone()
     return text_encoder, vae, unet, load_stable_diffusion_format
 

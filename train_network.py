@@ -418,10 +418,13 @@ class NetworkTrainer:
     def train(self, args):
         session_id = random.randint(0, 2**32)
         training_started_at = time.time()
-        train_util.verify_training_args(args)
-        train_util.prepare_dataset_args(args, True)
-        deepspeed_utils.prepare_deepspeed_args(args)
         setup_logging(args, reset=True)
+        logger.info(f"starting verify_training_args")
+        train_util.verify_training_args(args)
+        logger.info(f"starting prepare_dataset_args")
+        train_util.prepare_dataset_args(args, True)
+        logger.info(f"starting prepare_deepspeed_args")
+        deepspeed_utils.prepare_deepspeed_args(args)
 
         cache_latents = args.cache_latents
         use_dreambooth_method = args.in_json is None
@@ -479,10 +482,12 @@ class NetworkTrainer:
                         ]
                     }
 
+            logger.info(f"Generating blueprint from user config")
             blueprint = blueprint_generator.generate(user_config, args)
             train_dataset_group, val_dataset_group = config_util.generate_dataset_group_by_blueprint(blueprint.dataset_group)
         else:
             # use arbitrary dataset class
+            logger.info("loading arbitrary dataset")
             train_dataset_group = train_util.load_arbitrary_dataset(args)
             val_dataset_group = None # placeholder until validation dataset supported for arbitrary
 
@@ -492,6 +497,7 @@ class NetworkTrainer:
         collator = train_util.collator_class(current_epoch, current_step, ds_for_collator)
 
         if args.debug_dataset:
+            logger.info("debugging dataset")
             train_dataset_group.set_current_strategies()  # dataset needs to know the strategies explicitly
             train_util.debug_dataset(train_dataset_group)
 
@@ -526,6 +532,7 @@ class NetworkTrainer:
         vae_dtype = torch.float32 if args.no_half_vae else weight_dtype
 
         # モデルを読み込む
+        
         model_version, text_encoder, vae, unet = self.load_target_model(args, weight_dtype, accelerator)
 
         # text_encoder is List[CLIPTextModel] or CLIPTextModel
