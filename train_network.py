@@ -420,6 +420,7 @@ class NetworkTrainer:
         training_started_at = time.time()
         setup_logging(args, reset=True)
         logger.info(f"starting verify_training_args")
+        print(f"PRINT: starting verify_training_args")
         train_util.verify_training_args(args)
         logger.info(f"starting prepare_dataset_args")
         train_util.prepare_dataset_args(args, True)
@@ -532,7 +533,7 @@ class NetworkTrainer:
         vae_dtype = torch.float32 if args.no_half_vae else weight_dtype
 
         # モデルを読み込む
-        
+
         model_version, text_encoder, vae, unet = self.load_target_model(args, weight_dtype, accelerator)
 
         # text_encoder is List[CLIPTextModel] or CLIPTextModel
